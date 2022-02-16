@@ -1,12 +1,11 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
-let block = false;
 
 async function pegarReceita(num) {
   try {
     const URL_BASE = `https://www.tudogostoso.com.br/receita/${num}`;
     console.log(URL_BASE);
-    const browser = await puppeteer.launch({ slowMo: 300 });
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(URL_BASE);
 
@@ -54,17 +53,11 @@ async function pegarReceita(num) {
     salvarJson(body);
   } catch (err) {
     console.log("Erro na receita " + num_receita);
-
-    if (block) {
-      return;
-    }
-
-    num_receita = num_receita + 1;
-    pegarReceita(num_receita);
+    pegarReceita(++num_receita);
   }
 }
 
-let num_receita = 74;
+let num_receita = 19; // O indice inicial para o loop da coleta OU o indice da receita que desejar.
 
 function salvarJson(data) {
   fs.appendFile("receitas.json", "," + data, (err) => {
@@ -72,9 +65,9 @@ function salvarJson(data) {
 
     console.log("salvo!");
 
+    // Controle para a parada do loop de coleta, altere caso queira menos ou mais receitas.
     if (num_receita < 100) {
-      num_receita = num_receita + 1;
-      pegarReceita(num_receita);
+      pegarReceita(++num_receita);
     }
   });
 }
